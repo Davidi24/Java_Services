@@ -1,9 +1,9 @@
-package org.example.springsecurity.controller;
-
+package org.example.springsecurity.Login.Controller;
 
 import jakarta.servlet.http.HttpServletResponse;
-import org.example.springsecurity.model.Users;
-import org.example.springsecurity.service.UserService;
+import org.example.springsecurity.Login.DTO.DTOModel.UserDTO;
+import org.example.springsecurity.Login.model.Users;
+import org.example.springsecurity.Login.Service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,7 +25,12 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public Users login(@RequestBody Users user, HttpServletResponse response) {
+    public UserDTO login(@RequestBody Users user, HttpServletResponse response) {
         return service.login(user, response);
+    }
+
+    @PostMapping("/logout")
+    public void logout(HttpServletResponse response) {
+         service.logout(response);
     }
 }

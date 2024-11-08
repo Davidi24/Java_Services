@@ -1,10 +1,12 @@
-package org.example.springsecurity.service;
-import jakarta.servlet.http.Cookie;
+package org.example.springsecurity.Login.Service;
+
 import jakarta.servlet.http.HttpServletResponse;
-import org.example.springsecurity.Repository.UserRepository;
-import org.example.springsecurity.Validation.Validation;
-import org.example.springsecurity.model.UserPrincipal;
-import org.example.springsecurity.model.Users;
+import org.example.springsecurity.Login.DTO.DTOMaper.UserMapper;
+import org.example.springsecurity.Login.DTO.DTOModel.UserDTO;
+import org.example.springsecurity.Login.Repository.UserRepository;
+import org.example.springsecurity.Login.Validation.Validation;
+import org.example.springsecurity.Login.model.UserPrincipal;
+import org.example.springsecurity.Login.model.Users;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,13 +18,16 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     @Autowired
-    private JWTService jwtService;
+    CookiesManager cookiesManager;
 
     @Autowired
     AuthenticationManager authManager;
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private UserMapper userMapper;
 
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
@@ -48,30 +53,22 @@ public class UserService {
         }
     }
 
-    public Users login(Users user, HttpServletResponse response) {
+    public UserDTO login(Users user, HttpServletResponse response) {
         Authentication authentication = authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
         if (authentication != null && authentication.isAuthenticated()) {
             Object principal = authentication.getPrincipal();
             if (principal instanceof UserPrincipal) {
                 Users authenticatedUser = ((UserPrincipal) principal).user();
-                setCookies(authenticatedUser, response);
-                return authenticatedUser;
+                cookiesManager.setCookies(authenticatedUser, response);
+                return userMapper.usersToUserDTO(user);
             }
         }
         return null;
     }
 
-    //verification in the production
-    private void setCookies(Users user, HttpServletResponse response) {
-        String accessToken = jwtService.generateToken(user);  // Short-lived token
-        System.out.println("Access token created: " + accessToken);
-        Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
-        accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setSecure(false); // Set to true in production
-        accessTokenCookie.setMaxAge(300); // Adjust as necessary
-        accessTokenCookie.setPath("/");
-        response.addCookie(accessTokenCookie);
+    public void logout(HttpServletResponse response) {
+        cookiesManager.removeCookies(response);
     }
 
 }

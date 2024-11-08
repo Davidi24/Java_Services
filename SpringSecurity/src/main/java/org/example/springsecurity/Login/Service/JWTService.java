@@ -1,9 +1,9 @@
-package org.example.springsecurity.service;
+package org.example.springsecurity.Login.Service;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import org.example.springsecurity.model.Users;
+import org.example.springsecurity.Login.model.Users;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import javax.crypto.KeyGenerator;

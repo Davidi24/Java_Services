@@ -1,5 +1,4 @@
-package org.example.springsecurity.model;
-import lombok.Getter;
+package org.example.springsecurity.Login.model;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

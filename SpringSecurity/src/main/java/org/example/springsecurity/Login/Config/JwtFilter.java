@@ -1,12 +1,12 @@
-package org.example.springsecurity.config;
+package org.example.springsecurity.Login.Config;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.example.springsecurity.Repository.UserRepository;
-import org.example.springsecurity.service.JWTService;
-import org.example.springsecurity.service.MyUserDetailsService;
+import org.example.springsecurity.Login.Service.CookiesManager;
+import org.example.springsecurity.Login.Service.JWTService;
+import org.example.springsecurity.Login.Service.MyUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,6 +26,9 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Autowired
     ApplicationContext context;
+
+    @Autowired
+    CookiesManager cookiesManager;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -47,7 +50,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
         if (request.getCookies() != null) {
             Cookie[] cookies = request.getCookies();
-            String token = getTokenFromCookies(cookies);
+            String token = cookiesManager.getTokenFromCookies(cookies);
             if (token != null) {
                 String email = jwtService.extractUserEmail(token);
                 if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -68,18 +71,6 @@ public class JwtFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response); // Ensure the filter chain continues
     }
 
-    private String getTokenFromCookies(Cookie[] cookies) {
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("accessToken")) {
-                    return cookie.getValue();
-                }
-            }
-        } else {
-            System.out.println("No cookies found in the request.");
-        }
-        System.out.println("Token not found");
-        return null;
-    }
+
 
 }

@@ -1,4 +1,4 @@
-package org.example.springsecurity.model;
+package org.example.springsecurity.Login.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

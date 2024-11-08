@@ -1,5 +1,5 @@
-package org.example.springsecurity.Validation;
-import org.example.springsecurity.model.Users;
+package org.example.springsecurity.Login.Validation;
+import org.example.springsecurity.Login.model.Users;
 import java.util.regex.Pattern;
 
 public  class Validation {

@@ -1,7 +1,7 @@
-package org.example.springsecurity.service;
-import org.example.springsecurity.model.UserPrincipal;
-import org.example.springsecurity.model.Users;
-import org.example.springsecurity.Repository.UserRepository;
+package org.example.springsecurity.Login.Service;
+import org.example.springsecurity.Login.model.UserPrincipal;
+import org.example.springsecurity.Login.model.Users;
+import org.example.springsecurity.Login.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
