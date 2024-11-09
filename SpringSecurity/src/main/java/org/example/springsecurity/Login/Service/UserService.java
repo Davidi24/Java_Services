@@ -54,6 +54,7 @@ public class UserService {
     }
 
     public UserDTO login(Users user, HttpServletResponse response) {
+        System.out.println("User: " + user);
         Authentication authentication = authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
         if (authentication != null && authentication.isAuthenticated()) {
@@ -61,7 +62,7 @@ public class UserService {
             if (principal instanceof UserPrincipal) {
                 Users authenticatedUser = ((UserPrincipal) principal).user();
                 cookiesManager.setCookies(authenticatedUser, response);
-                return userMapper.usersToUserDTO(user);
+                return userMapper.usersToUserDTO(authenticatedUser);
             }
         }
         return null;

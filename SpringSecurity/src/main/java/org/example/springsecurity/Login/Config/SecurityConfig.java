@@ -1,5 +1,9 @@
 package org.example.springsecurity.Login.Config;
+
+import org.example.springsecurity.Login.Service.CookiesManager;
+import org.example.springsecurity.Login.Service.JWTService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -9,6 +13,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -20,24 +25,34 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     @Autowired
-    private JwtFilter jwtFilter;
+    private UserDetailsService userDetailsService;
 
     @Autowired
-    private UserDetailsService userDetailsService;
+    private JWTService jwtService;
+
+    @Autowired
+    private CookiesManager cookiesManager;
+
+    @Autowired
+    private ApplicationContext context;
+
+    public JwtFilter jwtFilter() {
+        return new JwtFilter(jwtService, cookiesManager, context);  // Manually inject dependencies
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-         http
-                .csrf(customizer -> customizer.disable())
+        http.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
-                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-                .authorizeHttpRequests(request -> request
-                        .requestMatchers("/authorization/login", "/authorization/register").permitAll()
-                        .anyRequest().authenticated())
+                .authorizeHttpRequests(request ->
+                        request.requestMatchers("/authorization/login", "/authorization/register", "/notProtected").permitAll()
+                .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
+                .addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         return http.build();
     }
+
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
