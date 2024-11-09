@@ -17,44 +17,44 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserService {
 
-    @Autowired
-    CookiesManager cookiesManager;
 
-    @Autowired
-    AuthenticationManager authManager;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private UserMapper userMapper;
+    private final CookiesManager  cookiesManager;
+    private final AuthenticationManager authManager;
+    private final  UserRepository userRepository;
+    private final  UserMapper userMapper;
 
     private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
-    //neds checks on the return
-    public int register(Users user) {
+    @Autowired
+    public UserService(CookiesManager cookiesManager, AuthenticationManager authManager, UserRepository userRepository, UserMapper userMapper) {
+        this.cookiesManager = cookiesManager;
+        this.authManager = authManager;
+        this.userRepository = userRepository;
+        this.userMapper = userMapper;
+    }
+
+    public String register(Users user) {
         String isValid = Validation.validateUser(user);
         if (!isValid.isEmpty()) {
-            return -2;
+            return "User is not valid";
         }
         Users existingUser = userRepository.findByEmail(user.getEmail());
         if (existingUser != null) {
-            return 0;
+            return "User is already registered";
         }
 
         try {
             String hashedPassword = encoder.encode(user.getPassword());
             user.setPassword(hashedPassword);
             userRepository.save(user);
-            return 1;
+            return "User registered successfully";
         } catch (Exception e) {
             System.out.println("Exeption in login: " + e.getMessage());
-            return -1;
+            return "Something went wrong";
         }
     }
 
     public UserDTO login(Users user, HttpServletResponse response) {
-        System.out.println("User: " + user);
         Authentication authentication = authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword()));
         if (authentication != null && authentication.isAuthenticated()) {

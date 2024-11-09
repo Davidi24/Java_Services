@@ -11,8 +11,13 @@ import org.springframework.stereotype.Service;
 @Service
 public class MyUserDetailsService implements UserDetailsService {
 
+
+    private final UserRepository userRepo;
+
     @Autowired
-    private UserRepository userRepo;
+    public MyUserDetailsService(UserRepository userRepo) {
+        this.userRepo = userRepo;
+    }
 
     //Uses email as username
     @Override

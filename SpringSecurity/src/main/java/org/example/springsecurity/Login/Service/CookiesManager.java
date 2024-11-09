@@ -6,12 +6,18 @@ import org.example.springsecurity.Login.model.Users;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.Optional;
 
 @Component
 public class CookiesManager {
 
+    private final JWTService jwtService;
+
     @Autowired
-    private JWTService jwtService;
+    public CookiesManager(JWTService jwtService) {
+        this.jwtService = jwtService;
+    }
 
     public void setCookies(Users user, HttpServletResponse response) {
         String accessToken = jwtService.generateAccessToken(user);
@@ -26,30 +32,29 @@ public class CookiesManager {
         Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
         refreshTokenCookie.setHttpOnly(true);
         refreshTokenCookie.setSecure(false); // Set to true in production
-        refreshTokenCookie.setMaxAge(7 * 24 * 60 * 60); // 7 days
+        refreshTokenCookie.setMaxAge(30 * 24 * 60 * 60); // 30 days
         refreshTokenCookie.setPath("/");
 
         response.addCookie(accessTokenCookie);
         response.addCookie(refreshTokenCookie);
     }
 
-    public String getAccessTokenFromCookies(Cookie[] cookies) {
+    public Optional<String> getAccessTokenFromCookies(Cookie[] cookies) {
         return getTokenFromCookies(cookies, "accessToken");
     }
 
-    public String getRefreshTokenFromCookies(Cookie[] cookies) {
+    public Optional<String> getRefreshTokenFromCookies(Cookie[] cookies) {
         return getTokenFromCookies(cookies, "refreshToken");
     }
 
-    private String getTokenFromCookies(Cookie[] cookies, String tokenName) {
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals(tokenName)) {
-                    return cookie.getValue();
-                }
-            }
+    private Optional<String> getTokenFromCookies(Cookie[] cookies, String tokenName) {
+        if (cookies == null) {
+            return Optional.empty();
         }
-        return null;
+        return Arrays.stream(cookies)
+                .filter(cookie -> tokenName.equals(cookie.getName()))
+                .map(Cookie::getValue)
+                .findFirst();
     }
 
     public void removeCookies(HttpServletResponse response) {
@@ -77,5 +82,4 @@ public class CookiesManager {
         accessTokenCookie.setPath("/");
         response.addCookie(accessTokenCookie);
     }
-
 }

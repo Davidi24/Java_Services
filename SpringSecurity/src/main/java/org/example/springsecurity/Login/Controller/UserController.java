@@ -18,12 +18,17 @@ import java.util.Objects;
 @RequestMapping("/authorization")
 public class UserController {
 
+
+    private final UserService service;
+
     @Autowired
-    private UserService service;
+    public UserController(UserService service) {
+        this.service = service;
+    }
 
 
     @PostMapping("/register")
-    public int register(@RequestBody Users user) {
+    public String register(@RequestBody Users user) {
         return service.register(user);
 
     }
@@ -47,7 +52,7 @@ public class UserController {
     public ResponseEntity<?> logout(HttpServletResponse response) {
         try {
             service.logout(response);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok().build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("An error occurred while logging out");
